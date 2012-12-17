@@ -4,5 +4,6 @@
     <string name="app_name">Google_maps_API_v2_sample</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="showMap">Show map</string>
 
 </resources>
