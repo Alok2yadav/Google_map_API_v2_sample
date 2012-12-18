@@ -2,6 +2,8 @@ package com.example.google_maps_api_v2_sample;
 
 import java.util.ArrayList;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar.LayoutParams;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
@@ -12,6 +14,8 @@ import android.text.Editable;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +26,8 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.GoogleMapOptions;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.CameraPosition.Builder;
 import com.google.android.gms.maps.model.CameraPositionCreator;
@@ -30,6 +36,7 @@ import com.google.android.gms.maps.model.LatLngCreator;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+@SuppressLint("NewApi")
 public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 	private static GoogleMap mMap;
@@ -37,23 +44,26 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	String value;
 	static ArrayList<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 
+	// static List<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
+
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		// TODO Auto-generated method stub
 		super.onConfigurationChanged(newConfig);
-		
 
 	}
- @Override
-protected void onStart() {
-		if (!markerHeap.isEmpty()){
+
+	@Override
+	protected void onStart() {
+		if (!markerHeap.isEmpty()) {
 			for (MarkerOptions marker : markerHeap) {
-				mMap.addMarker(marker);
+				mMap.addMarker(marker).setDraggable(true);
 			}
 		}
-		
-	 super.onStart();
-}
+
+		super.onStart();
+	}
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -64,18 +74,14 @@ protected void onStart() {
 		// mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 		mMap.setMyLocationEnabled(true);
 		mMap.getUiSettings().setAllGesturesEnabled(true);
-		
-		
-		
-		
+
 		mMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
-			public void onMapClick(LatLng arg0) {
+			public void onMapClick(LatLng position) {
 
-//				MarkerOptions marker = ;
-				markerHeap.add(new MarkerOptions().position(arg0));
-				mMap.addMarker(markerHeap.get(markerHeap.size() - 1 ));
+				setMarkerDescription(position);
+				// MarkerOptions marker =new MarkerOptions().position(arg0) ;
 
 			}
 		});
@@ -84,21 +90,9 @@ protected void onStart() {
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-				// TextView input = (TextView) findViewById(R.id.editText1);
-				runOnUiThread(new Runnable() {
-					public void run() {
-						setDescription();
 
-					}
-				});
-
-				Toast.makeText(getApplication(), value, 1).show();
-
-				marker.setTitle(value);
-				if (value != null) {
-					marker.showInfoWindow();
-
-				}
+				// setDescription(marker);
+				marker.showInfoWindow();
 				return false;
 			}
 		});
@@ -110,8 +104,10 @@ protected void onStart() {
 					public void onClick(View v) {
 						Location myLocation = mMap.getMyLocation();
 
-//						myLocationLatLng = new LatLng(52, 45);
-						myLocationLatLng = new LatLng(myLocation.getLatitude(), myLocation.getLongitude());
+						myLocationLatLng = new LatLng(49, 32);
+						// myLocationLatLng = new
+						// LatLng(myLocation.getLatitude(),
+						// myLocation.getLongitude());
 						// TO-DO mMap.clear();
 						// GoogleMapOptions options = new GoogleMapOptions();
 						CameraPosition cameraPosition = new CameraPosition.Builder()
@@ -119,8 +115,8 @@ protected void onStart() {
 															// the map to
 															// Mountain View
 								.zoom(17) // Sets the zoom
-								.bearing(90) // Sets the orientation of the
-												// camera to east
+								.bearing(0) // Sets the orientation of the
+											// camera to east
 								.tilt(0) // Sets the tilt of the camera to 30
 											// degrees
 								.build(); // Creates a CameraPosition from the
@@ -132,23 +128,46 @@ protected void onStart() {
 
 	}
 
-	public String setDescription() {
+	void setMarker (LatLng position, int color, String title) {
+//		int title = markerHeap.size() + 1;
+//		int color = (title * 10) % 360;
+		markerHeap.add(new MarkerOptions().position(position)
+				.title(title)
+				.icon(BitmapDescriptorFactory.defaultMarker(color)));
+
+		mMap.addMarker(markerHeap.get(markerHeap.size() - 1));
+
+	}
+
+	public String setMarkerDescription(final LatLng position) {
 
 		AlertDialog.Builder alert = new AlertDialog.Builder(MainActivity.this);
 
-		// alert.setTitle("Title");
-		// alert.setMessage("Message");
-
-		// Set an EditText view to get user input
 		final EditText input = new EditText(MainActivity.this);
+		final NumberPicker numberPiker = new NumberPicker(MainActivity.this);
+		final TextView secondTitle = new TextView(MainActivity.this);
+		secondTitle.setText("Set color");
+		
+		numberPiker.setMinValue(0);
+		numberPiker.setMaxValue(360);
+
+		
+		 LinearLayout root = new LinearLayout(MainActivity.this);
+		 
+		 root.setOrientation(LinearLayout.VERTICAL);
+		 root.addView(input);
+		 root.addView(secondTitle);
+		 root.addView(numberPiker);
+		
+		
 		value = null;
-		// arg0.setTitle();
-		alert.setTitle("Update Status")
+		alert.setTitle("Add new Marker")
 				.setMessage("Add description")
-				.setView(input)
+				.setView(root)
 				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						value = input.getText().toString();
+//						marker.setTitle(input.getText().toString());
+						setMarker(position, numberPiker.getValue(),input.getText().toString());
 						// return value.toString();
 					}
 				})
