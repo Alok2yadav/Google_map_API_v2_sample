@@ -18,7 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="Button" />
+        android:text="@string/goCisco" />
 
     <Button
         android:id="@+id/button2"
@@ -26,6 +26,14 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/button1"
-        android:text="Button" />
+        android:text="@string/goZero" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/map"
+        android:layout_toRightOf="@+id/button2"
+        android:text="@string/goHome" />
 
 </RelativeLayout>

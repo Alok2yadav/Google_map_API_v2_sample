@@ -4,5 +4,8 @@
     <string name="app_name">Google_maps_API_v2_sample</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="goHome">Go home!</string>
+    <string name="goZero">Go 0;0</string>
+    <string name="goCisco">go to Cisco!!!</string>
 
 </resources>
