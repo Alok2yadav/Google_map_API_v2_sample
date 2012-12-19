@@ -10,19 +10,26 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.InfoWindowAdapter;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -43,22 +50,97 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 	// static List<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		// TODO Auto-generated method stub
-		super.onConfigurationChanged(newConfig);
+
+	class CustomInfoWindowAdapter2 implements InfoWindowAdapter {
+		private LinearLayout root;
+
+		CustomInfoWindowAdapter2() {
+
+		}
+
+		@Override
+		public View getInfoWindow(Marker marker) {
+			return null;
+
+		}
+
+		@Override
+		public View getInfoContents(Marker marker) {
+			root = new LinearLayout(MainActivity.this);
+
+			root.setOrientation(LinearLayout.VERTICAL);
+
+			TextView title = new TextView(MainActivity.this);
+
+			TextView spinnet = new TextView(MainActivity.this);
+			ImageView image = new ImageView(MainActivity.this);
+			root.addView(spinnet);
+			root.addView(title);
+
+			root.addView(image);
+
+			image.setImageResource(R.drawable.ic_launcher);
+
+			Log.i("getInfoContents",
+					marker.getTitle() + " " + marker.getTitle());
+			spinnet.append(marker.getSnippet());
+			title.append(marker.getTitle());
+
+			return root;
+
+		}
 
 	}
 
-	@Override
-	protected void onStart() {
-		// if (!markerHeap.isEmpty()) {
-		// for (MarkerOptions marker : markerHeap) {
-		// mMap.addMarker(marker).setDraggable(true);
-		// }
-		// }
+	class CustomInfoWindowAdapter implements InfoWindowAdapter {
 
-		super.onStart();
+		private final View mWindow;
+		private final View mContents;
+
+		CustomInfoWindowAdapter() {
+			mWindow = getLayoutInflater().inflate(R.layout.custom_info_window,
+					null);
+			mContents = getLayoutInflater().inflate(
+					R.layout.custom_info_contents, null);
+		}
+
+		@Override
+		public View getInfoWindow(Marker marker) {
+
+			render(marker, mWindow);
+			return mWindow;
+		}
+
+		@Override
+		public View getInfoContents(Marker marker) {
+
+			render(marker, mContents);
+			return mContents;
+		}
+
+		private void render(Marker marker, View view) {
+			int badge;
+
+			((ImageView) view.findViewById(R.id.badge))
+					.setImageResource(R.drawable.ic_launcher);
+
+			String title = marker.getTitle();
+			TextView titleUi = ((TextView) view.findViewById(R.id.title));
+			if (title != null) {
+
+				titleUi.setText(title);
+			} else {
+				titleUi.setText("");
+			}
+
+			String snippet = marker.getSnippet();
+			TextView snippetUi = ((TextView) view.findViewById(R.id.snippet));
+			if (snippet != null) {
+				snippetUi.setText(snippet);
+			} else {
+				snippetUi.setText("");
+			}
+		}
 	}
 
 	@Override
@@ -67,27 +149,23 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		setContentView(R.layout.activity_main);
 		SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map));
-	     if (savedInstanceState == null) {
-	            // First incarnation of this activity.
-	            mapFragment.setRetainInstance(true);
-	        } else {
-	            // Reincarnated activity. The obtained map is the same map instance in the previous
-	            // activity life cycle. There is no need to reinitialize it.
-	            mMap = mapFragment.getMap();
-	        }
-	     
-	     setUpMapIfNeeded();
-//		if (getLastCustomNonConfigurationInstance() == null) {
-//			mMap = ((SupportMapFragment) getSupportFragmentManager()
-//					.findFragmentById(R.id.map)).getMap();
-//		} else {
-//			mMap = (GoogleMap) getLastCustomNonConfigurationInstance();
-//		}
+		if (savedInstanceState == null) {
+			// First incarnation of this activity.
+			mapFragment.setRetainInstance(true);
+		} else {
+			// Reincarnated activity. The obtained map is the same map instance
+			// in the previous
+			// activity life cycle. There is no need to reinitialize it.
+			mMap = mapFragment.getMap();
+		}
+
+		setUpMapIfNeeded();
+		mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter2());
 
 		mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
 		mMap.setMyLocationEnabled(true);
 		mMap.getUiSettings().setAllGesturesEnabled(true);
-		
+
 		// Instantiates a new Polyline object and adds points to define a
 		// rectangle
 		PolylineOptions polylineRectOptions = new PolylineOptions()
@@ -150,9 +228,22 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-
+				Toast.makeText(
+						getApplication(),
+						"Marker InfoWindow is shown "
+								+ marker.isInfoWindowShown(), 0).show();
 				// setDescription(marker);
-				marker.showInfoWindow();
+				if (marker.isInfoWindowShown()) {
+
+					marker.hideInfoWindow();
+				} else {
+					marker.showInfoWindow();
+
+				}
+				Toast.makeText(
+						getApplication(),
+						"Marker InfoWindow is shown "
+								+ marker.isInfoWindowShown(), 0).show();
 				return false;
 			}
 		});
@@ -223,7 +314,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	void setMarker(LatLng position, int color, String title) {
 		// int title = markerHeap.size() + 1;
 		// int color = (title * 10) % 360;
-		markerHeap.add(new MarkerOptions().position(position).title(title)
+		markerHeap.add(new MarkerOptions().position(position).snippet("").title(title)
 				.icon(BitmapDescriptorFactory.defaultMarker(color)));
 
 		mMap.addMarker(markerHeap.get(markerHeap.size() - 1));
@@ -241,7 +332,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 		numberPiker.setMinValue(0);
 		numberPiker.setMaxValue(36);
-		
+
 		LinearLayout root = new LinearLayout(MainActivity.this);
 
 		root.setOrientation(LinearLayout.VERTICAL);
@@ -256,7 +347,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// marker.setTitle(input.getText().toString());
-						setMarker(position, numberPiker.getValue()*10, input
+						setMarker(position, numberPiker.getValue() * 10, input
 								.getText().toString());
 						// return value.toString();
 					}
@@ -272,20 +363,37 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		return value;
 
 	}
-	
-    private void setUpMapIfNeeded() {
-        if (mMap == null) {
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
-    }
-        
-        private void setUpMap() {
-            mMap.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
-        }
+
+	private void setUpMapIfNeeded() {
+		if (mMap == null) {
+			mMap = ((SupportMapFragment) getSupportFragmentManager()
+					.findFragmentById(R.id.map)).getMap();
+			if (mMap != null) {
+				setUpMap();
+			}
+		}
+	}
+
+	private void setUpMap() {
+		mMap.addMarker(new MarkerOptions()
+				.position(new LatLng(0, 0))
+				.title("Marker1")
+				.snippet("Marker 1 spinnet")
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+		mMap.addMarker(new MarkerOptions()
+				.position(new LatLng(10, 0))
+				.title("Marker2")
+				.snippet("Marker 2 spinnet")
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+		mMap.addMarker(new MarkerOptions()
+				.position(new LatLng(0, 10))
+				.title("Marker3")
+				.snippet("Marker 3 spinnet")
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -293,11 +401,5 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		getMenuInflater().inflate(R.menu.activity_main, menu);
 		return true;
 	}
-//
-//	@Override
-//	public GoogleMap onRetainCustomNonConfigurationInstance() {
-//		// TODO Auto-generated method stub
-//		return mMap;
-//	}
 
 }
