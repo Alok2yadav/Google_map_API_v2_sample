@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.MarkerOptionsCreator;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
@@ -46,10 +47,30 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	private static GoogleMap mMap;
 	private LatLng myLocationLatLng;
 	String value;
+	static CameraPosition currentCameraPosition;
 	static ArrayList<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 
 	// static List<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		currentCameraPosition =	mMap.getCameraPosition();
+		super.onSaveInstanceState(outState);
+	}
 
+	@Override
+	protected void onStart() {
+		if (!markerHeap.isEmpty()) {
+			for (MarkerOptions marker : markerHeap) {
+				
+				mMap.addMarker(marker);
+			}
+		}
+		if (currentCameraPosition != null) {
+			mMap.moveCamera(CameraUpdateFactory
+					.newCameraPosition(currentCameraPosition));
+		}
+		super.onStart();
+	}
 
 	class CustomInfoWindowAdapter2 implements InfoWindowAdapter {
 		private LinearLayout root;
@@ -144,6 +165,12 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	}
 
 	@Override
+	public void onBackPressed() {
+		mMap = null;
+		super.onBackPressed();
+	}
+
+	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -152,6 +179,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		if (savedInstanceState == null) {
 			// First incarnation of this activity.
 			mapFragment.setRetainInstance(true);
+
 		} else {
 			// Reincarnated activity. The obtained map is the same map instance
 			// in the previous
@@ -253,9 +281,10 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			@Override
 			public void onInfoWindowClick(Marker marker) {
 				Toast.makeText(getApplication(),
-						"Removed marker '" + marker.getTitle() + "'",
+						"Removed marker '" + marker.getTitle() + "'" + marker.getId(),
 						Toast.LENGTH_LONG).show();
 				marker.remove();
+				
 
 			}
 		});
@@ -314,7 +343,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	void setMarker(LatLng position, int color, String title) {
 		// int title = markerHeap.size() + 1;
 		// int color = (title * 10) % 360;
-		markerHeap.add(new MarkerOptions().position(position).snippet("").title(title)
+		markerHeap.add(new MarkerOptions().position(position).snippet("")
+				.title(title)
 				.icon(BitmapDescriptorFactory.defaultMarker(color)));
 
 		mMap.addMarker(markerHeap.get(markerHeap.size() - 1));
