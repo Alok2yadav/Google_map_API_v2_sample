@@ -50,54 +50,42 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	static CameraPosition currentCameraPosition;
 	static ArrayList<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 	static ArrayList<String> markerIdHeap = new ArrayList<String>();
+	static int clickCounter = 0;
 
-	// static List<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		currentCameraPosition = mMap.getCameraPosition();
 		super.onSaveInstanceState(outState);
 	}
 
-	@Override
-	protected void onStart() {
-		
-		super.onStart();
-	}
-
 	class CustomInfoWindowAdapter2 implements InfoWindowAdapter {
 		private LinearLayout root;
 
 		CustomInfoWindowAdapter2() {
-
 		}
 
 		@Override
 		public View getInfoWindow(Marker marker) {
 			return null;
-
 		}
 
 		@Override
 		public View getInfoContents(Marker marker) {
 			root = new LinearLayout(MainActivity.this);
-
 			root.setOrientation(LinearLayout.VERTICAL);
 
 			TextView title = new TextView(MainActivity.this);
-
 			TextView spinnet = new TextView(MainActivity.this);
 			ImageView image = new ImageView(MainActivity.this);
+
 			root.addView(spinnet);
 			root.addView(title);
-
 			root.addView(image);
 
 			image.setImageResource(R.drawable.ic_launcher);
-
-			Log.i("getInfoContents",
-					marker.getTitle() + " " + marker.getTitle());
-			spinnet.append(marker.getSnippet());
-			title.append(marker.getTitle());
+			if (marker.getSnippet() != null){spinnet.append(marker.getSnippet());}
+			if (marker.getTitle()!= null){title.append(marker.getTitle());}
+			
 
 			return root;
 
@@ -119,33 +107,27 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 		@Override
 		public View getInfoWindow(Marker marker) {
-
 			render(marker, mWindow);
 			return mWindow;
 		}
 
 		@Override
 		public View getInfoContents(Marker marker) {
-
 			render(marker, mContents);
 			return mContents;
 		}
 
 		private void render(Marker marker, View view) {
 			int badge;
-
 			((ImageView) view.findViewById(R.id.badge))
 					.setImageResource(R.drawable.ic_launcher);
-
 			String title = marker.getTitle();
 			TextView titleUi = ((TextView) view.findViewById(R.id.title));
 			if (title != null) {
-
 				titleUi.setText(title);
 			} else {
 				titleUi.setText("");
 			}
-
 			String snippet = marker.getSnippet();
 			TextView snippetUi = ((TextView) view.findViewById(R.id.snippet));
 			if (snippet != null) {
@@ -158,6 +140,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 	@Override
 	public void onBackPressed() {
+		currentCameraPosition = mMap.getCameraPosition();
 		mMap = null;
 		super.onBackPressed();
 	}
@@ -168,6 +151,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		setContentView(R.layout.activity_main);
 		SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map));
+
 		if (savedInstanceState == null) {
 			// First incarnation of this activity.
 			mapFragment.setRetainInstance(true);
@@ -185,8 +169,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 		mMap.setMyLocationEnabled(true);
 		mMap.getUiSettings().setAllGesturesEnabled(true);
-		
-
+		mMap.getUiSettings().setTiltGesturesEnabled(true);
 		// Instantiates a new Polyline object and adds points to define a
 		// rectangle
 		PolylineOptions polylineRectOptions = new PolylineOptions()
@@ -234,37 +217,32 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 						new LatLng(3, 0), new LatLng(0, 0)).addHole(holePoints)
 				.fillColor(Color.BLUE));
 
+		// Event Listeners
 		mMap.setOnMapClickListener(new OnMapClickListener() {
-
 			@Override
 			public void onMapClick(LatLng position) {
-
 				setMarkerDescription(position);
-				// MarkerOptions marker =new MarkerOptions().position(arg0) ;
-
 			}
 		});
 
 		mMap.setOnMarkerClickListener(new OnMarkerClickListener() {
-
 			@Override
 			public boolean onMarkerClick(Marker marker) {
 				Toast.makeText(
 						getApplication(),
 						"Marker InfoWindow is shown "
 								+ marker.isInfoWindowShown(), 0).show();
-				// setDescription(marker);
 				if (marker.isInfoWindowShown()) {
-
 					marker.hideInfoWindow();
 				} else {
 					marker.showInfoWindow();
-
 				}
+				clickCounter++;
 				Toast.makeText(
 						getApplication(),
-						"Marker InfoWindow is shown "
-								+ marker.isInfoWindowShown(), 0).show();
+						"Marker clicked for "
+								+ clickCounter + " time", 0).show();
+				
 				return false;
 			}
 		});
@@ -348,24 +326,23 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				.title(title)
 				.icon(BitmapDescriptorFactory.defaultMarker(color)));
 
-		markerIdHeap.add(mMap.addMarker(markerHeap.get(markerHeap.size() - 1)).getId());
-		
+		markerIdHeap.add(mMap.addMarker(markerHeap.get(markerHeap.size() - 1))
+				.getId());
 
 	}
-	
-	void deleteMarker(String outerMarkerID){
+
+	void deleteMarker(String outerMarkerID) {
 		int position = 0;
-		for (String innerMarkerid:markerIdHeap)
-		{
-			if (outerMarkerID.equals(innerMarkerid)){
+		for (String innerMarkerid : markerIdHeap) {
+			if (outerMarkerID.equals(innerMarkerid)) {
 				markerHeap.remove(position);
 				markerIdHeap.remove(position);
 				return;
-				
+
 			}
 			position++;
 		}
-		
+
 	}
 
 	public String setMarkerDescription(final LatLng position) {
@@ -424,7 +401,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	private void setUpMap() {
 		mMap.addMarker(new MarkerOptions()
 				.position(new LatLng(0, 0))
-				.title("Marker1")
+				/* .title("Marker1") */
 				.snippet("Marker 1 spinnet")
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
@@ -437,7 +414,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		mMap.addMarker(new MarkerOptions()
 				.position(new LatLng(0, 10))
 				.title("Marker3")
-				.snippet("Marker 3 spinnet")
+				/* .snippet("Marker 3 spinnet") */
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
 		if (!markerHeap.isEmpty()) {
