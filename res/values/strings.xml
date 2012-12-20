@@ -7,5 +7,6 @@
     <string name="goHome">Go home!</string>
     <string name="goZero">Go 0;0</string>
     <string name="goCisco">go to Cisco!!!</string>
+    <string name="clearMap">Clear Map</string>
 
 </resources>

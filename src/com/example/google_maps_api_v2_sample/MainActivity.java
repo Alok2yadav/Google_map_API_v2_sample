@@ -49,26 +49,18 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	String value;
 	static CameraPosition currentCameraPosition;
 	static ArrayList<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
+	static ArrayList<String> markerIdHeap = new ArrayList<String>();
 
 	// static List<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		currentCameraPosition =	mMap.getCameraPosition();
+		currentCameraPosition = mMap.getCameraPosition();
 		super.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected void onStart() {
-		if (!markerHeap.isEmpty()) {
-			for (MarkerOptions marker : markerHeap) {
-				
-				mMap.addMarker(marker);
-			}
-		}
-		if (currentCameraPosition != null) {
-			mMap.moveCamera(CameraUpdateFactory
-					.newCameraPosition(currentCameraPosition));
-		}
+		
 		super.onStart();
 	}
 
@@ -190,9 +182,10 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		setUpMapIfNeeded();
 		mMap.setInfoWindowAdapter(new CustomInfoWindowAdapter2());
 
-		mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+		mMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 		mMap.setMyLocationEnabled(true);
 		mMap.getUiSettings().setAllGesturesEnabled(true);
+		
 
 		// Instantiates a new Polyline object and adds points to define a
 		// rectangle
@@ -280,11 +273,12 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
-				Toast.makeText(getApplication(),
-						"Removed marker '" + marker.getTitle() + "'" + marker.getId(),
-						Toast.LENGTH_LONG).show();
+				deleteMarker(marker.getId());
+				Toast.makeText(
+						getApplication(),
+						"Removed marker '" + marker.getTitle() + "'"
+								+ marker.getId(), Toast.LENGTH_LONG).show();
 				marker.remove();
-				
 
 			}
 		});
@@ -320,7 +314,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 					}
 				});
+		findViewById(R.id.clear_map_button).setOnClickListener(
+				new View.OnClickListener() {
 
+					@Override
+					public void onClick(View v) {
+						mMap.clear();
+					}
+				});
 	}
 
 	private void setCameraPosition(LatLng position) {
@@ -347,8 +348,24 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				.title(title)
 				.icon(BitmapDescriptorFactory.defaultMarker(color)));
 
-		mMap.addMarker(markerHeap.get(markerHeap.size() - 1));
+		markerIdHeap.add(mMap.addMarker(markerHeap.get(markerHeap.size() - 1)).getId());
+		
 
+	}
+	
+	void deleteMarker(String outerMarkerID){
+		int position = 0;
+		for (String innerMarkerid:markerIdHeap)
+		{
+			if (outerMarkerID.equals(innerMarkerid)){
+				markerHeap.remove(position);
+				markerIdHeap.remove(position);
+				return;
+				
+			}
+			position++;
+		}
+		
 	}
 
 	public String setMarkerDescription(final LatLng position) {
@@ -423,6 +440,16 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				.snippet("Marker 3 spinnet")
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+		if (!markerHeap.isEmpty()) {
+			for (MarkerOptions marker : markerHeap) {
+
+				mMap.addMarker(marker);
+			}
+		}
+		if (currentCameraPosition != null) {
+			mMap.moveCamera(CameraUpdateFactory
+					.newCameraPosition(currentCameraPosition));
+		}
 	}
 
 	@Override

@@ -132,18 +132,19 @@ containing a value of this type.
         public static final int ic_launcher=0x7f020001;
     }
     public static final class id {
-        public static final int badge=0x7f040008;
+        public static final int badge=0x7f040009;
         public static final int button1=0x7f040005;
         public static final int button2=0x7f040006;
         public static final int button3=0x7f040007;
+        public static final int clear_map_button=0x7f040008;
         public static final int map=0x7f040004;
-        public static final int menu_settings=0x7f04000b;
+        public static final int menu_settings=0x7f04000c;
         public static final int none=0x7f040000;
         public static final int normal=0x7f040001;
         public static final int satellite=0x7f040002;
-        public static final int snippet=0x7f04000a;
+        public static final int snippet=0x7f04000b;
         public static final int terrain=0x7f040003;
-        public static final int title=0x7f040009;
+        public static final int title=0x7f04000a;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -155,6 +156,7 @@ containing a value of this type.
     }
     public static final class string {
         public static final int app_name=0x7f05000b;
+        public static final int clearMap=0x7f050011;
         /**  Button in confirmation dialog to enable Google Play services.  Clicking it
         will direct user to application settings of Google Play services where they
         can enable it [CHAR LIMIT=30] 
