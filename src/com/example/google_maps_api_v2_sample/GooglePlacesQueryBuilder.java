@@ -1,5 +1,7 @@
 package com.example.google_maps_api_v2_sample;
 
+import android.util.Log;
+
 import com.example.google_maps_api_v2_sample.DataSource.Types;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -7,7 +9,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 public class GooglePlacesQueryBuilder {
 
-	private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/nearbysearch/";
+	private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place/nearbysearch";
 	// private static final String TYPE_AUTOCOMPLETE = "/autocomplete";
 	private static final String OUT_JSON = "/json?";
 
@@ -33,14 +35,17 @@ public class GooglePlacesQueryBuilder {
 	String keywords;
 	boolean sensor;
 	String keyAPI;
+	private String LOG_TAG = "GooglePlacesQueryBuilder";
 
-	GooglePlacesQueryBuilder(LatLng latlng, int radius) {
+	GooglePlacesQueryBuilder(LatLng latlng, int outerRadius) {
+		Log.d(LOG_TAG , "GooglePlacesQueryBuilder constructor");
 		// query = PLACES_API_BASE + OUT_JSON;
-		location = Double.toString(latlng.latitude) + "."
+		location = Double.toString(latlng.latitude) + ","
 				+ Double.toString(latlng.longitude);
 		keyAPI = KEY + DataSource.getAPIkey();
 //Default value of sensor		
 		sensor = true;
+		radius = Integer.toString(outerRadius);
 	}
 
 	public void pagetoken(String pagetoken) {
@@ -131,7 +136,7 @@ public class GooglePlacesQueryBuilder {
 
 		resultQuery = PLACES_API_BASE + OUT_JSON + location + radius + keywords
 				+ types + name + stringSensor +pagetoken+ keyAPI;
-
+		Log.d(LOG_TAG , "GooglePlacesQueryBuilder builded " + resultQuery);
 		return resultQuery;
 	}
 }

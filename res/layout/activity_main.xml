@@ -1,16 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
-
-    <fragment
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/button1"
-        class="com.google.android.gms.maps.SupportMapFragment" />
 
     <Button
         android:id="@+id/button1"
@@ -28,13 +21,14 @@
         android:layout_toRightOf="@+id/button1"
         android:text="@string/goZero" />
 
-    <Button
-        android:id="@+id/button3"
+    <Spinner
+        android:id="@+id/spinner1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/map"
-        android:layout_toRightOf="@+id/button2"
-        android:text="@string/goHome" />
+        android:layout_alignBottom="@+id/button3"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/searchButton"
+        android:layout_toRightOf="@id/button3" />
 
     <Button
         android:id="@+id/clear_map_button"
@@ -43,5 +37,37 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:text="@string/clearMap" />
+
+    <Button
+        android:id="@+id/button3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/seekBar1"
+        android:layout_toRightOf="@+id/button2"
+        android:text="@string/goHome" />
+
+    <SeekBar
+        android:id="@+id/seekBar1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/button1" />
+
+    <fragment
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/seekBar1"
+        class="com.google.android.gms.maps.SupportMapFragment" />
+
+    <Button
+        android:id="@+id/searchButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/spinner1"
+        android:text="@string/searchButton" />
 
 </RelativeLayout>

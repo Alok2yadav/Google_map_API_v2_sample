@@ -16,14 +16,19 @@ import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.RadioGroup;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -54,10 +59,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	static ArrayList<String> markerIdHeap = new ArrayList<String>();
 	static int clickCounter = 0;
 	private static Context context;
-	
+	private static String currentTypeChoice;
+	static int distance = 2500;
+	private TextView seekBarTitle;
+	protected String LOG_TAG = "MainActivity";
+
 	public static Context getAppContext() {
-        return MainActivity.context;
-    }
+		return MainActivity.context;
+	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -90,9 +99,12 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 			root.addView(image);
 
 			image.setImageResource(R.drawable.ic_launcher);
-			if (marker.getSnippet() != null){spinnet.append(marker.getSnippet());}
-			if (marker.getTitle()!= null){title.append(marker.getTitle());}
-			
+			if (marker.getSnippet() != null) {
+				spinnet.append(marker.getSnippet());
+			}
+			if (marker.getTitle() != null) {
+				title.append(marker.getTitle());
+			}
 
 			return root;
 
@@ -155,10 +167,63 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.activity_main2);
 		SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map));
 		MainActivity.context = getApplicationContext();
+
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+				android.R.layout.simple_spinner_item,DataSource.getSource());
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+		Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+		spinner.setAdapter(adapter);
+		spinner.setPrompt("Choose place type");
+		spinner.setSelection(5);
+		OnItemSelectedListener listener = new OnItemSelectedListener() {
+		
+		 @Override
+		 public void onItemSelected(AdapterView<?> parent, View view,
+		 int position, long id) {
+		 Toast.makeText(getBaseContext(), "Position = " + position,
+		 Toast.LENGTH_SHORT).show();
+		 currentTypeChoice = DataSource.getSource().get(position);
+		 }
+		
+		 @Override
+		 public void onNothingSelected(AdapterView<?> arg0) {
+		
+		 }
+		 };
+		
+		 spinner.setOnItemSelectedListener(listener);
+		  seekBarTitle = (TextView) findViewById(R.id.textView1);
+		SeekBar seekBar = (SeekBar) findViewById(R.id.seekBar1);
+		
+		seekBar.setMax(50000);
+		seekBar.setProgress(2500);
+		seekBar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
+			
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				distance=seekBar.getProgress();
+				seekBarTitle.setText("Distanse is "+distance+" meters");
+				
+			}
+		});
+
 		if (savedInstanceState == null) {
 			// First incarnation of this activity.
 			mapFragment.setRetainInstance(true);
@@ -245,11 +310,10 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 					marker.showInfoWindow();
 				}
 				clickCounter++;
-				Toast.makeText(
-						getApplication(),
-						"Marker clicked for "
-								+ clickCounter + " time", 0).show();
-				
+				Toast.makeText(getApplication(),
+						"Marker clicked for " + clickCounter + " time", 0)
+						.show();
+
 				return false;
 			}
 		});
@@ -306,6 +370,40 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 					public void onClick(View v) {
 						mMap.clear();
 					}
+				});
+
+		findViewById(R.id.searchButton).setOnClickListener(
+				new View.OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						ArrayList<Place> places = null;
+						try {
+							DataProvider dataProvider = new DataProvider();
+							Location myLocation = mMap.getMyLocation();
+							myLocationLatLng = new LatLng(myLocation.getLatitude(),
+									myLocation.getLongitude());
+							
+							 places = dataProvider.geetFeed((new GooglePlacesQueryBuilder(
+											myLocationLatLng, distance))
+											.type(currentTypeChoice));
+						} catch (Exception e) {
+							Log.d(LOG_TAG , "Exception e " + e.toString());
+							e.printStackTrace();
+						}
+
+						if (places != null) {
+							for (Place place : places) {
+								setMarker(place.getLocation(), 0,
+										place.getName());
+							}
+							
+						}
+						else{
+							Log.d(LOG_TAG , "Places is null");
+						}
+					}
+
 				});
 	}
 
@@ -424,14 +522,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				/* .snippet("Marker 3 spinnet") */
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
-		
+
 		mMap.addMarker(new MarkerOptions()
-		.position(new LatLng(10, 10))
-		.title("Marker4")
-		 .snippet("Marker 4 spinnet")
-		.icon(BitmapDescriptorFactory
-				.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
-		
+				.position(new LatLng(10, 10))
+				.title("Marker4")
+				.snippet("Marker 4 spinnet")
+				.icon(BitmapDescriptorFactory
+						.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+
 		if (!markerHeap.isEmpty()) {
 			for (MarkerOptions marker : markerHeap) {
 

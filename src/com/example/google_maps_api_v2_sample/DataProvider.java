@@ -12,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 public class DataProvider {
 
@@ -35,6 +36,7 @@ public class DataProvider {
 	// NextPage token
 	private static final String NEXT_PAGE_TOKEN = "next_page_token";
 	ArrayList<Place> places;
+	private String LOG_TAG = "queryString";
 
 	public static boolean isOnline() {
 		Context context = MainActivity.getAppContext();
@@ -47,19 +49,22 @@ public class DataProvider {
 		return false;
 	}
 
-	public ArrayList<Place> geetFeed(GooglePlacesQueryBuilder query)
+	public  ArrayList<Place> geetFeed(GooglePlacesQueryBuilder query)
 			throws Exception {
-		places = null;
+		places = new ArrayList<Place>();
 		JSONObject jsonData = null;
 
 		do {
-			String JsonLoad = JsonLoader.makeGetRequest(query.build());
+			Log.d(LOG_TAG , "before query building");
+			String queryString = query.build();
+			Log.d(LOG_TAG , queryString);
+			String JsonLoad = JsonLoader.makeGetRequest(queryString);
+			
+			Log.d(LOG_TAG , "jsonData ");
 			jsonData = new JSONObject(JsonLoad);
 
 			String status = jsonData.getString(STATUS_KEY);
-			if (jsonData.has(NEXT_PAGE_TOKEN)) {
-				query.pagetoken(jsonData.getString(NEXT_PAGE_TOKEN));
-			}
+			
 			// validate response before parsing.
 			switch (Status.valueOf(status)) {
 			case REQUEST_DENIED:
@@ -79,8 +84,10 @@ public class DataProvider {
 				// should never occurs if server is not changed.
 				throw new IllegalStateException("Status is not supported.");
 			}
-
-		} while (jsonData.has(NEXT_PAGE_TOKEN));
+			if (jsonData.has(NEXT_PAGE_TOKEN)) {
+				query.pagetoken(jsonData.getString(NEXT_PAGE_TOKEN));
+			}else{break;}
+		} while (true);
 		return places;
 
 	}

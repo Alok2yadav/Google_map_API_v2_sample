@@ -8,5 +8,7 @@
     <string name="goZero">Go 0;0</string>
     <string name="goCisco">go to Cisco!!!</string>
     <string name="clearMap">Clear Map</string>
+    <string name="searchButton">Search</string>
+    <string name="setDistanceString">Set distance</string>
 
 </resources>
