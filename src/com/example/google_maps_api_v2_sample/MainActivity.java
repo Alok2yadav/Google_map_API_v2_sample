@@ -63,7 +63,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	static int distance = 2500;
 	private TextView seekBarTitle;
 	protected String LOG_TAG = "MainActivity";
-
+	DataProvider dataProvider;
+	ArrayList<Place> places;
 	public static Context getAppContext() {
 		return MainActivity.context;
 	}
@@ -377,16 +378,32 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 					@Override
 					public void onClick(View v) {
-						ArrayList<Place> places = null;
 						try {
-							DataProvider dataProvider = new DataProvider();
+							 dataProvider = new DataProvider();
 							Location myLocation = mMap.getMyLocation();
 							myLocationLatLng = new LatLng(myLocation.getLatitude(),
 									myLocation.getLongitude());
+							Thread thread;
+							Runnable runnable = new Runnable() {
+								
+								@Override
+								public void run() {
+									 try {
+										places = dataProvider.geetFeed((new GooglePlacesQueryBuilder(
+													myLocationLatLng, distance))
+													.type(currentTypeChoice));
+									} catch (Exception e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									
+								}
+							};
 							
-							 places = dataProvider.geetFeed((new GooglePlacesQueryBuilder(
-											myLocationLatLng, distance))
-											.type(currentTypeChoice));
+							 
+							 thread = new Thread(runnable);
+							 thread.start();
+							 thread.join();
 						} catch (Exception e) {
 							Log.d(LOG_TAG , "Exception e " + e.toString());
 							e.printStackTrace();
