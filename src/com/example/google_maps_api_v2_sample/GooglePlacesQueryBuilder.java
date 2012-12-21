@@ -1,5 +1,6 @@
 package com.example.google_maps_api_v2_sample;
 
+import com.example.google_maps_api_v2_sample.DataSource.Types;
 import com.google.android.gms.maps.model.LatLng;
 
 //Nearby search queries
@@ -12,6 +13,7 @@ public class GooglePlacesQueryBuilder {
 
 	private static final String LOCATION = "location=";
 	private static final String RADIUS = "&radius=";
+	private static final String NEXT_PAGE_TOKEN = "&pagetoken=";
 	private static final String KEY_WORDS = "&keyword=";
 	private static final String TYPES = "&types=";
 	private static final String NAME = "&name=";
@@ -23,7 +25,10 @@ public class GooglePlacesQueryBuilder {
 
 	String location;
 	String radius;
+	String pagetoken;
 	String types;
+	
+
 	String name;
 	String keywords;
 	boolean sensor;
@@ -34,12 +39,15 @@ public class GooglePlacesQueryBuilder {
 		location = Double.toString(latlng.latitude) + "."
 				+ Double.toString(latlng.longitude);
 		keyAPI = KEY + DataSource.getAPIkey();
+//Default value of sensor		
 		sensor = true;
 	}
 
+	public void pagetoken(String pagetoken) {
+		this.pagetoken = pagetoken;
+	}
 	public GooglePlacesQueryBuilder sensor(boolean outerSensor) {
 		sensor = outerSensor;
-
 		return this;
 
 	}
@@ -106,6 +114,13 @@ public class GooglePlacesQueryBuilder {
 		} else {
 			name = NAME + name;
 		}
+
+		if (pagetoken == null){
+			pagetoken = "";
+		}else
+		{
+			pagetoken = NEXT_PAGE_TOKEN+pagetoken;
+		}
 		
 		String stringSensor;
 		if (sensor) {
@@ -113,9 +128,9 @@ public class GooglePlacesQueryBuilder {
 		} else {
 			stringSensor = SENSOR_FALSE;
 		}
-		
+
 		resultQuery = PLACES_API_BASE + OUT_JSON + location + radius + keywords
-				+ types + name + stringSensor + keyAPI;
+				+ types + name + stringSensor +pagetoken+ keyAPI;
 
 		return resultQuery;
 	}

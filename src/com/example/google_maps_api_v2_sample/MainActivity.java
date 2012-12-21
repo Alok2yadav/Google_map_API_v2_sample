@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -22,6 +23,7 @@ import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -51,6 +53,11 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 	static ArrayList<MarkerOptions> markerHeap = new ArrayList<MarkerOptions>();
 	static ArrayList<String> markerIdHeap = new ArrayList<String>();
 	static int clickCounter = 0;
+	private static Context context;
+	
+	public static Context getAppContext() {
+        return MainActivity.context;
+    }
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
@@ -151,7 +158,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		setContentView(R.layout.activity_main);
 		SupportMapFragment mapFragment = ((SupportMapFragment) getSupportFragmentManager()
 				.findFragmentById(R.id.map));
-
+		MainActivity.context = getApplicationContext();
 		if (savedInstanceState == null) {
 			// First incarnation of this activity.
 			mapFragment.setRetainInstance(true);
@@ -417,6 +424,14 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 				/* .snippet("Marker 3 spinnet") */
 				.icon(BitmapDescriptorFactory
 						.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+		
+		mMap.addMarker(new MarkerOptions()
+		.position(new LatLng(10, 10))
+		.title("Marker4")
+		 .snippet("Marker 4 spinnet")
+		.icon(BitmapDescriptorFactory
+				.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
+		
 		if (!markerHeap.isEmpty()) {
 			for (MarkerOptions marker : markerHeap) {
 
