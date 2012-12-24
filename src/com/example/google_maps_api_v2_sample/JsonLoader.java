@@ -36,6 +36,7 @@ public class JsonLoader
 			response = client.execute(httpGet);
 			StatusLine statusLine = response.getStatusLine();
 			int statusCode = statusLine.getStatusCode();
+			Log.d(LOG_TAG, "statusCode " + statusCode);
 			if (statusCode == 200) {
 				Log.d(LOG_TAG, "statusCode " + statusCode);
 				HttpEntity entity = response.getEntity();
@@ -44,6 +45,7 @@ public class JsonLoader
 						content));
 				String line;
 				while ((line = reader.readLine()) != null) {
+					Log.d(LOG_TAG, "line is " + line);
 					builder.append(line);
 				}
 			} else {

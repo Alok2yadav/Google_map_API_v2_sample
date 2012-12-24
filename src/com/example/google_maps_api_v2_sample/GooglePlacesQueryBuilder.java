@@ -29,7 +29,6 @@ public class GooglePlacesQueryBuilder {
 	String radius;
 	String pagetoken;
 	String types;
-	
 
 	String name;
 	String keywords;
@@ -38,12 +37,12 @@ public class GooglePlacesQueryBuilder {
 	private String LOG_TAG = "GooglePlacesQueryBuilder";
 
 	GooglePlacesQueryBuilder(LatLng latlng, int outerRadius) {
-		Log.d(LOG_TAG , "GooglePlacesQueryBuilder constructor");
+		Log.d(LOG_TAG, "GooglePlacesQueryBuilder constructor");
 		// query = PLACES_API_BASE + OUT_JSON;
 		location = Double.toString(latlng.latitude) + ","
 				+ Double.toString(latlng.longitude);
 		keyAPI = KEY + DataSource.getAPIkey();
-//Default value of sensor		
+		// Default value of sensor
 		sensor = true;
 		radius = Integer.toString(outerRadius);
 	}
@@ -51,6 +50,7 @@ public class GooglePlacesQueryBuilder {
 	public void pagetoken(String pagetoken) {
 		this.pagetoken = pagetoken;
 	}
+
 	public GooglePlacesQueryBuilder sensor(boolean outerSensor) {
 		sensor = outerSensor;
 		return this;
@@ -99,34 +99,23 @@ public class GooglePlacesQueryBuilder {
 
 	public String build() {
 		String resultQuery = null;
-		location = LOCATION + location;
-		radius = RADIUS + radius;
+/*		location = LOCATION + location;
+		radius = RADIUS + radius;*/
+		resultQuery = PLACES_API_BASE + OUT_JSON + LOCATION + location + RADIUS + radius;
+		if (keywords != null) {
 
-		if (keywords == null) {
-			keywords = "";
-		} else {
-			keywords = KEY_WORDS + keywords;
+			resultQuery += KEY_WORDS + keywords;
 		}
 
-		if (types == null) {
-			types = "";
-		} else {
-			types = TYPES + types;
+		if (types != null) {
+
+			resultQuery += TYPES + types;
 		}
 
-		if (name == null) {
-			name = "";
-		} else {
-			name = NAME + name;
+		if (name != null) {
+				resultQuery += NAME + name;
 		}
 
-		if (pagetoken == null){
-			pagetoken = "";
-		}else
-		{
-			pagetoken = NEXT_PAGE_TOKEN+pagetoken;
-		}
-		
 		String stringSensor;
 		if (sensor) {
 			stringSensor = SENSOR_TRUE;
@@ -134,9 +123,22 @@ public class GooglePlacesQueryBuilder {
 			stringSensor = SENSOR_FALSE;
 		}
 
-		resultQuery = PLACES_API_BASE + OUT_JSON + location + radius + keywords
-				+ types + name + stringSensor +pagetoken+ keyAPI;
-		Log.d(LOG_TAG , "GooglePlacesQueryBuilder builded " + resultQuery);
+		resultQuery += stringSensor;
+
+		if (pagetoken != null) {
+			
+			resultQuery += NEXT_PAGE_TOKEN + pagetoken;
+			pagetoken = null;
+			
+		}
+
+		resultQuery += keyAPI;
+
+		/*
+		 * resultQuery = PLACES_API_BASE + OUT_JSON + location + radius +
+		 * keywords + types + name + stringSensor +pagetoken+ keyAPI;
+		 */
+		Log.d(LOG_TAG, "GooglePlacesQueryBuilder builded " + resultQuery);
 		return resultQuery;
 	}
 }

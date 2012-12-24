@@ -49,21 +49,34 @@ public class DataProvider {
 		return false;
 	}
 
-	public  ArrayList<Place> geetFeed(GooglePlacesQueryBuilder query)
+	public ArrayList<Place> geetFeed(GooglePlacesQueryBuilder query)
 			throws Exception {
 		places = new ArrayList<Place>();
 		JSONObject jsonData = null;
-
+//		String pagetokenString;
 		do {
-			Log.d(LOG_TAG , "before query building");
+//			pagetokenString = null;
+			Log.d(LOG_TAG, "before query building");
 			String queryString = query.build();
-			Log.d(LOG_TAG , queryString);
+			Log.d(LOG_TAG, queryString);
 			String JsonLoad = JsonLoader.makeGetRequest(queryString);
-			
-			Log.d(LOG_TAG , "jsonData ");
+
+			// Log.d(LOG_TAG , "jsonData " +
+			// jsonData.getString(NEXT_PAGE_TOKEN));
 			jsonData = new JSONObject(JsonLoad);
 
 			String status = jsonData.getString(STATUS_KEY);
+			Log.d(LOG_TAG, "Status.valueOf(status)" + Status.valueOf(status));
+			if (jsonData.has(NEXT_PAGE_TOKEN)){
+			//pagetokenString = jsonData.getString(NEXT_PAGE_TOKEN);
+			query.pagetoken(jsonData.getString(NEXT_PAGE_TOKEN));
+			Log.d(LOG_TAG, "NEXT_PAGE_TOKEN " + jsonData.getString(NEXT_PAGE_TOKEN));
+			}
+//			if (jsonData.has(NEXT_PAGE_TOKEN)) {
+//				pagetokenString = jsonData.getString(NEXT_PAGE_TOKEN);
+//			} else {
+//				pagetokenString = null;
+//			}
 			
 			// validate response before parsing.
 			switch (Status.valueOf(status)) {
@@ -84,10 +97,15 @@ public class DataProvider {
 				// should never occurs if server is not changed.
 				throw new IllegalStateException("Status is not supported.");
 			}
-			if (jsonData.has(NEXT_PAGE_TOKEN)) {
-				query.pagetoken(jsonData.getString(NEXT_PAGE_TOKEN));
-			}else{break;}
-		} while (true);
+			// Log.d(LOG_TAG , "jsonData 2" +
+			// jsonData.getString(NEXT_PAGE_TOKEN));
+//			if (jsonData.has(NEXT_PAGE_TOKEN)) {
+//				query.pagetoken(jsonData.getString(NEXT_PAGE_TOKEN));
+//			} else {
+//				break;
+//			}
+			if (jsonData.has(NEXT_PAGE_TOKEN)){Thread.sleep(3000);}
+		} while (jsonData.has(NEXT_PAGE_TOKEN));
 		return places;
 
 	}

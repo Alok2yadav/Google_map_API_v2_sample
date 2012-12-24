@@ -186,8 +186,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		 @Override
 		 public void onItemSelected(AdapterView<?> parent, View view,
 		 int position, long id) {
-		 Toast.makeText(getBaseContext(), "Position = " + position,
-		 Toast.LENGTH_SHORT).show();
+//		 Toast.makeText(getBaseContext(), "Position = " + position,
+//		 Toast.LENGTH_SHORT).show();
 		 currentTypeChoice = DataSource.getSource().get(position);
 		 }
 		
@@ -301,37 +301,38 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 		mMap.setOnMarkerClickListener(new OnMarkerClickListener() {
 			@Override
 			public boolean onMarkerClick(Marker marker) {
-				Toast.makeText(
-						getApplication(),
-						"Marker InfoWindow is shown "
-								+ marker.isInfoWindowShown(), 0).show();
+//				Toast.makeText(
+//						getApplication(),
+//						"Marker InfoWindow is shown "
+//								+ marker.isInfoWindowShown(), 0).show();
 				if (marker.isInfoWindowShown()) {
 					marker.hideInfoWindow();
 				} else {
 					marker.showInfoWindow();
 				}
 				clickCounter++;
-				Toast.makeText(getApplication(),
-						"Marker clicked for " + clickCounter + " time", 0)
-						.show();
+//				Toast.makeText(getApplication(),
+//						"Marker clicked for " + clickCounter + " time", 0)
+//						.show();
 
 				return false;
 			}
 		});
 
-		mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+		
+/*		mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
 			@Override
 			public void onInfoWindowClick(Marker marker) {
 				deleteMarker(marker.getId());
-				Toast.makeText(
-						getApplication(),
-						"Removed marker '" + marker.getTitle() + "'"
-								+ marker.getId(), Toast.LENGTH_LONG).show();
+//				Toast.makeText(
+//						getApplication(),
+//						"Removed marker '" + marker.getTitle() + "'"
+//								+ marker.getId(), Toast.LENGTH_LONG).show();
 				marker.remove();
 
 			}
-		});
+		});*/
 
 		findViewById(R.id.button1).setOnClickListener(
 				new View.OnClickListener() {
@@ -370,6 +371,8 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 					@Override
 					public void onClick(View v) {
 						mMap.clear();
+						markerHeap = new ArrayList<MarkerOptions>();
+						markerIdHeap = new ArrayList<String>();
 					}
 				});
 
@@ -381,8 +384,9 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 						try {
 							 dataProvider = new DataProvider();
 							Location myLocation = mMap.getMyLocation();
-							myLocationLatLng = new LatLng(myLocation.getLatitude(),
-									myLocation.getLongitude());
+//							myLocationLatLng = new LatLng(myLocation.getLatitude(),
+//									myLocation.getLongitude());
+							myLocationLatLng = mMap.getCameraPosition().target;
 							Thread thread;
 							Runnable runnable = new Runnable() {
 								
@@ -411,6 +415,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 
 						if (places != null) {
 							for (Place place : places) {
+								Log.d(LOG_TAG , "Marker added " + place.name+" totally "+places.size());
 								setMarker(place.getLocation(), 0,
 										place.getName());
 							}
@@ -418,6 +423,7 @@ public class MainActivity extends android.support.v4.app.FragmentActivity {
 						}
 						else{
 							Log.d(LOG_TAG , "Places is null");
+						 Toast.makeText(getApplicationContext(), "Nothing founded", Toast.LENGTH_LONG).show();
 						}
 					}
 
